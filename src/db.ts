@@ -1,4 +1,5 @@
 import Database from "better-sqlite3";
+import { globalState } from "./monitooor";
 import { getInnerHTML } from "./parser";
 
 interface Monitor {
@@ -77,6 +78,7 @@ export async function performCheck(id: number) {
         "UPDATE monitors SET lastChecked = @lastChecked, lastChanged = @lastChanged, lastHttpStatus = @lastHttpStatus, lastCachedHtml = @lastCachedHtml WHERE id = @id",
     );
     const res = update.run({ lastChecked, lastChanged, lastHttpStatus, lastCachedHtml, id });
+    await globalState.sendMessage(`🚨 Detected changes in URL: ${url}`);
     return res.changes;
 }
 

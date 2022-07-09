@@ -9,11 +9,11 @@ const BOT_TOKEN = process.env.BOT_TOKEN;
 if (BOT_TOKEN === undefined) {
     throw new Error("BOT_TOKEN must be provided!");
 }
-const GROUP_ID = process.env.GROUP_ID;
+const CHAT_ID = process.env.CHAT_ID;
 
 async function isAuthenticated(ctx: Context) {
     const chat = await ctx.telegram.getChat(ctx.message.chat.id);
-    return chat.id === parseInt(GROUP_ID);
+    return chat.id === parseInt(CHAT_ID);
 }
 
 // best state management ever lol seriously the telegraf.js docs and examples are shiiit
@@ -25,6 +25,7 @@ export const addUrlStateInit = {
 };
 export const globalState = {
     addUrlState: { ...addUrlStateInit },
+    sendMessage: async (_: string) => {},
 };
 
 const bot = new Telegraf<Scenes.WizardContext>(BOT_TOKEN);
@@ -44,6 +45,9 @@ bot.command("start", async (ctx) => {
         await ctx.reply("You are not authorized! 🙅 ");
         return;
     }
+    globalState.sendMessage = async (message: string) => {
+        await ctx.telegram.sendMessage(parseInt(CHAT_ID), message);
+    };
 
     // if db not empty, start monitoring everything and notify
     // if db empty, do nothing
