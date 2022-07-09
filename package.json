@@ -4,9 +4,10 @@
     "main": "index.js",
     "author": "strobie <0xstrobe@protonmail.com>",
     "scripts": {
-        "start": "NODE_ENV=production pm2 start build/monitooor.js",
+        "start": "tsc && node build/monitooor.js",
+        "start:pm2": "NODE_ENV=production pm2 start build/monitooor.js",
         "build": "tsc",
-        "reload": "pm2 kill && yarn build && yarn start"
+        "reload:pm2": "pm2 kill && yarn build && yarn start"
     },
     "license": "MIT",
     "dependencies": {
