@@ -1,13 +1,19 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-import { Scenes, session, Telegraf } from "telegraf";
+import { Context, Scenes, session, Telegraf } from "telegraf";
 import { addUrlWizard } from "./addUrlWizard";
 import { clearAllTimerIdsForExit, countMonitors, listMonitors, startAllMonitors } from "./db";
 
 const token = process.env.BOT_TOKEN;
 if (token === undefined) {
     throw new Error("BOT_TOKEN must be provided!");
+}
+const GROUP_ID = process.env.GROUP_ID;
+
+async function isAuthenticated(ctx: Context) {
+    const chat = await ctx.telegram.getChat(ctx.message.chat.id);
+    return chat.id === parseInt(GROUP_ID);
 }
 
 // best state management ever lol seriously the telegraf.js docs and examples are shiiit
@@ -34,6 +40,11 @@ const HELP_TEXT =
 
 bot.command("start", async (ctx) => {
     await ctx.replyWithMarkdown(HELP_TEXT);
+    if (!(await isAuthenticated(ctx))) {
+        await ctx.reply("You are not authorized! 🙅 ");
+        return;
+    }
+
     // if db not empty, start monitoring everything and notify
     // if db empty, do nothing
     const count = countMonitors();
@@ -44,11 +55,29 @@ bot.command("start", async (ctx) => {
     }
 });
 
+bot.command("help", async (ctx) => {
+    await ctx.replyWithMarkdown(HELP_TEXT);
+    if (!(await isAuthenticated(ctx))) {
+        await ctx.reply("You are not authorized! 🙅 ");
+        return;
+    }
+});
+
 bot.command("add", async (ctx) => {
+    if (!(await isAuthenticated(ctx))) {
+        await ctx.reply("You are not authorized! 🙅 ");
+        return;
+    }
+
     await ctx.scene.enter("add-url-wizard");
 });
 
 bot.command("list", async (ctx) => {
+    if (!(await isAuthenticated(ctx))) {
+        await ctx.reply("You are not authorized! 🙅 ");
+        return;
+    }
+
     await ctx.reply("Listing all monitors...");
     const monitors = listMonitors();
     const monitorStrings = monitors
