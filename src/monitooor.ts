@@ -5,8 +5,8 @@ import { Context, Scenes, session, Telegraf } from "telegraf";
 import { addUrlWizard } from "./addUrlWizard";
 import { clearAllTimerIdsForExit, countMonitors, listMonitors, startAllMonitors } from "./db";
 
-const token = process.env.BOT_TOKEN;
-if (token === undefined) {
+const BOT_TOKEN = process.env.BOT_TOKEN;
+if (BOT_TOKEN === undefined) {
     throw new Error("BOT_TOKEN must be provided!");
 }
 const GROUP_ID = process.env.GROUP_ID;
@@ -27,7 +27,7 @@ export const globalState = {
     addUrlState: { ...addUrlStateInit },
 };
 
-const bot = new Telegraf<Scenes.WizardContext>(token);
+const bot = new Telegraf<Scenes.WizardContext>(BOT_TOKEN);
 const stage = new Scenes.Stage<Scenes.WizardContext>([addUrlWizard]);
 bot.use(session());
 bot.use(stage.middleware());
